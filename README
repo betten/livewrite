@@ -1,0 +1,3 @@
+real time story time is a platform for real time blogging and comments.  The goal is to allow users to see your blog or story being written as you write it, and allow them to comment as you write.
+
+This is largely a side project to learn node.js, the express framework, jade and haml, and couchdb, and this project is far from complete.

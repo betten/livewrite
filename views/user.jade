@@ -1,0 +1,11 @@
+h1 real time story time - #{user.username}
+h2 create new story
+form(action: '/create', method: 'post')
+  label title:
+    input(name: 'title', type: 'text')
+h2 stories
+div#stories
+- if(user.stories)
+  | hi
+- else
+p#no-stories no stories yet, get started!

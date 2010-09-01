@@ -1,0 +1,22 @@
+h1 real time story time
+h2 signin
+form(action: '/signin', method: 'post')
+  label username:
+    input(name: 'username', type: 'text')
+  label password:
+    input(name: 'password', type: 'password')
+h2 signup
+form(action: '/signup', method: 'post')
+  label username:
+    input(name: 'username', type: 'text')
+  label password:
+    input(name: 'password', type: 'password')
+  label confirm password:
+    input(name: 'confirmation', type: 'password')
+h2 stories
+div#stories
+  - if (stories)
+    - each story in stories
+      div.story= story.title
+- if (!stories)
+  p#no-stories no stories, be the first!

@@ -1,0 +1,122 @@
+var http 	= require('http');
+var io 		= require('../../socket.io-node');
+var fs		= require('fs');
+var url 	= require('url');
+var mime 	= require('./modules/content-type');
+var sys 	= require('sys');
+var querystring = require('querystring');
+var couchdb	= require('./modules/node-couchdb/lib/couchdb');
+var jade	= require('jade');
+
+var client = couchdb.createClient();
+var db = client.db('stories');
+
+var send404 = function(response) {
+	response.writeHead(404);
+	response.end('hm, something has gone horribly wrong...');
+};
+var sendViewFile = function(url, response) {
+	fs.readFile('view'+url, function(err, data) {
+		if(err) {
+			console.log(sys.inspect(err));
+			send404(response);
+			return false;
+		}
+		response.writeHead(200, {'Content-Type': mime.mime_type(url)});
+		response.end(data);
+	});
+};
+var createAndRedirect = function(data, response) {
+	db.saveDoc(data, function(err, doc) {
+		if (err) throw new Error(JSON.stringify(err));
+		console.log(sys.inspect(doc));
+		redirectTo('/story/'+doc.id,response);
+	});
+};
+var renderStoryPage = function(id, response) {
+	db.getDoc(id, function(err, doc) {
+		if(err) throw new Error(JSON.stringify(err));
+		console.log(sys.inspect(doc));
+		jade.renderFile('view/jade/story.jade', { locals: {story: doc}}, function(err, html) {
+			if(err) throw new Error(JSON.stringify(err));
+			console.log(sys.inspect(html));
+			response.writeHead(200, {'Content-Type': 'text/html'});
+			response.end(html);
+		});
+	});
+};
+var redirectTo = function(url, response) {
+	response.writeHead(307, {'Location': url});
+	response.end();
+};
+var server = http.createServer(function(request, response) {
+	switch(true) {
+		case /^\/$/.test(request.url):
+			jade.renderFile('view/jade/index.jade', {locals: {stories: null}}, function(err, html) {
+				if(err) throw new Error(JSON.stringify(err));
+				response.writeHead(200, {'Content-Type': 'text/html'});
+				response.end(html);
+			});
+			break;
+		case /.*\.js|.*\.css/.test(request.url):
+			sendViewFile(request.url,response);
+			break;
+		case /^\/signin$/.test(request.url):
+			console.log(sys.inspect(request));
+			send404(response);
+			break;
+		case /^\/create$/.test(request.url):
+			var post = new String();
+			request.on('data', function(chunk) {
+				post = post + chunk;
+			}).on('end', function() {
+				var data = querystring.parse(post);
+				createAndRedirect(data, response);
+			});
+			break;
+		case /^\/story\/\w*$/.test(request.url):
+			var id = request.url.replace(/^\/story\//,'');
+			renderStoryPage(id, response);
+			break;
+		default:
+			send404(response);
+	}
+});
+server.listen(8080);
+console.log('server running...');
+
+var clients = {};
+var socket = io.listen(server);
+socket.on('connection', function(client) {
+console.log(sys.inspect(client));
+	client.on('message', function(data) {
+		data = JSON.parse(data);
+		if(data.hello) {
+			if(!clients[data.id]) clients[data.id] = new Array();
+			clients[data.id].push(client);
+			return false;
+		}
+		db.getDoc(data.id, function(err, doc) {
+			if(err) throw new Error(JSON.stringify(err));
+			if(!doc.messages) doc.messages = new Array();
+			doc.messages.unshift(data.message);
+			db.saveDoc(doc);
+			for(var i = 0; i < clients[data.id].length; i++) {
+				if(!clients[data.id][i] || clients[data.id][i] == client) continue;
+				clients[data.id][i].send(JSON.stringify(data));
+			}
+		});
+	});
+	client.on('disconnect', function() {
+		console.log(sys.inspect(clients));
+		for(var i in clients) {
+			for(var j = 0; j < clients[i].length; j++) {
+				if(clients[i][j] == client) {
+					clients[i].splice(j,1);
+					console.log(sys.inspect(clients));
+					return false;
+				}
+			}
+		};
+	});
+});

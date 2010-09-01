@@ -1,0 +1,20 @@
+!!! 5
+html(lang="en")
+  head
+    script(type: 'text/javascript', src: '/client/socket.io.js')
+    script(type: 'text/javascript', src: '/js/jquery-1.4.2.min.js')
+    script(type: 'text/javascript', src: '/js/json.js')
+    :javascript
+      | var GROOPID = '#{groop._id}';
+    script(type: 'text/javascript', src: '/js/groop.js')
+  body
+    h1 kwikgroop
+    h2= groop.title
+    input(id: 'new-message', type: 'text')
+    input(id: 'post-new-message', type: 'button', value: 'post')
+    ul#messages
+      - if (groop.messages)
+        - each message in groop.messages
+          li= message
+    - if (!groop.messages)
+      p#no-messages no messages, be the first!

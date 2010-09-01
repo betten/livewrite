@@ -1,0 +1,31 @@
+!!! 5
+html(lang="en")
+  head
+    script(type: 'text/javascript', src: '/client/socket.io.js')
+    script(type: 'text/javascript', src: '/js/jquery-1.4.2.min.js')
+    script(type: 'text/javascript', src: '/js/json.js')
+    script(type: 'text/javascript', src: '/js/index.js')
+  body
+    h1 real time story time
+    h2 create a new story
+    form(action: '/create', method: 'post')
+      label
+        | title: 
+        input(name: 'title', type: 'text')
+        | (there's no way to change story's title yet, so, yea, come up with something good)
+      br
+      label
+        | private: 
+        input(name: 'private', type: 'checkbox') 
+        | (if you want your story to be private, you'll have to enter a passphrase too, so think about that extra work)
+      br
+      label
+        | passphrase: 
+        input(name: 'passphrase', type: 'text') 
+        | (choose wisely! and keep in mind private stories can't be made public since there's no user system yet)
+    div#stories
+      - if (stories)
+        - each story in stories
+          div.story= story.title
+    - if (!stories)
+      p#no-stories no stories, be the first!
