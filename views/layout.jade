@@ -1,8 +1,16 @@
 !!! 5
 html(lang="en")
   head
+    title liveblog
+    link(rel: 'stylesheet', href:'/css/liveblog.css')
     script(type: 'text/javascript', src: '/client/socket.io.js')
     script(type: 'text/javascript', src: '/js/jquery-1.4.2.min.js')
     script(type: 'text/javascript', src: '/js/json.js')
-    script(type: 'text/javascript', src: '/js/index.js')
-  body!= body
+  body
+    #content
+      #header
+        - if(user)
+          #status hi #{user.username}&nbsp;
+            a(href: '/signout') not you?
+        | liveblog
+      != body

@@ -1,20 +1,23 @@
-!!! 5
-html(lang="en")
-  head
-    script(type: 'text/javascript', src: '/client/socket.io.js')
-    script(type: 'text/javascript', src: '/js/jquery-1.4.2.min.js')
-    script(type: 'text/javascript', src: '/js/json.js')
-    :javascript
-      | var GROOPID = '#{groop._id}';
-    script(type: 'text/javascript', src: '/js/groop.js')
-  body
-    h1 kwikgroop
-    h2= groop.title
-    input(id: 'new-message', type: 'text')
-    input(id: 'post-new-message', type: 'button', value: 'post')
-    ul#messages
-      - if (groop.messages)
-        - each message in groop.messages
-          li= message
-    - if (!groop.messages)
-      p#no-messages no messages, be the first!
+script(type: 'text/javascript', src: '/js/story.js')
+script(type: 'text/javascript')
+  | var STORY_ID = '#{story._id}';
+h1 #{story.title}
+div#story= story.text
+br
+- if(user)
+  a(href: '/user/'+user._id) my stories &raquo;
+  br
+a(href: '/all') view all stories &raquo;
+- if(!user)
+  br
+  a(href: '/') signin or signup &raquo;
+br
+br
+strong messages:
+div your name is 
+  strong#name= name
+input(id: 'message', type: 'text')
+div#messages
+  - for(i in story.messages)
+    div.message= story.messages[i].message
+      strong &nbsp;by #{story.messages[i].by}

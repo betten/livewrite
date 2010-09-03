@@ -1,11 +1,15 @@
-h1 real time story time - #{user.username}
+h1 my dashboard
 h2 create new story
 form(action: '/create', method: 'post')
   label title:
     input(name: 'title', type: 'text')
-h2 stories
+h2 my stories
 div#stories
 - if(user.stories)
-  | hi
+  - for (var i in user.stories)
+    a(href: '/story/'+user.stories[i].id) #{user.stories[i].title}
+    br
 - else
-p#no-stories no stories yet, get started!
+  p#no-stories no stories yet, get started!
+br
+a(href: '/all') view all stories &raquo;

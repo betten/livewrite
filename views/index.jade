@@ -1,4 +1,4 @@
-h1 real time story time
+script(type: 'text/javascript', src: '/js/index.js')
 h2 signin
 form(action: '/signin', method: 'post')
   label username:
@@ -15,8 +15,8 @@ form(action: '/signup', method: 'post')
     input(name: 'confirmation', type: 'password')
 h2 stories
 div#stories
-  - if (stories)
-    - each story in stories
-      div.story= story.title
-- if (!stories)
-  p#no-stories no stories, be the first!
+  - each story in stories
+    div.story
+      a(href: '/story/'+story.value._id)= story.value.title
+br
+a(href: '/all') view all stories &raquo;

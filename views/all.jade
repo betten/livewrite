@@ -1,0 +1,11 @@
+script(type: 'text/javascript', src: '/js/all.js')
+h1 all stories
+div#stories
+  - each story in stories
+    div.story
+      a(href: '/story/'+story.value._id)= story.value.title
+br
+- if(user)
+  a(href: '/user/'+user._id) my stories &raquo;
+- else
+  a(href: '/') signin or signup &raquo;
