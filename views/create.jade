@@ -3,8 +3,12 @@ script(type: 'text/javascript')
   | var STORY_ID = '#{story._id}';
 h1 #{story.title}
 h2 edit story
-textarea#story(rows: '20', cols: '100')= story.text
+textarea#story(rows: '20', cols: '98')= story.text
 a#save(href: 'javascript:void(0);') save
+#story-public-url
+  strong let others watch you write! public url:
+  br
+  input(type: 'text', value: 'http://livewrite.wakawakafoobar.info/story/'+story._id)
 br
 a(href: '/user/'+user._id) my stories &raquo;
 br

@@ -1,4 +1,6 @@
 script(type: 'text/javascript', src: '/js/index.js')
+- if(errors)
+  #errors= errors
 h2 signin
 form(action: '/signin', method: 'post')
   label username:
@@ -13,6 +15,15 @@ form(action: '/signup', method: 'post')
     input(name: 'password', type: 'password')
   label confirm password:
     input(name: 'confirmation', type: 'password')
+#info
+  | livewrite allows you to write a story and allows others to read it as you write it in in real time.  users can also also add comments in real time as you write story.
+  br
+  br
+  | this project is being developed just for fun and to learn nodejs, express, socket.io, couchdb, and jade. it may or may not work on all browsers.
+  br
+  br
+  | the source can be found 
+  a(href: 'http://github.com/betten/liveblog') here
 h2 stories
 div#stories
   - each story in stories

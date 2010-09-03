@@ -40,18 +40,13 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
 app.get('/', function(req, res){
-	if(req.session.errors) {
-		console.log(req.session.errors);
-		req.session.errors = null;
-	}
 	if(req.session.user) {
 		res.redirect('/user/'+req.session.user._id);
 		return false;
 	}
 	stories_db.view('stories', 'by_id', {limit: 5}, function(err, doc) {
-		console.log(err);
-		console.log(doc.rows);
-		res.render('index', { locals: {stories: doc.rows, user: null}});
+		res.render('index', { locals: {stories: doc.rows, user: null, errors: req.session.errors}});
+		req.session.errors = null;
 	});
 });
 
@@ -118,7 +113,6 @@ app.get('/user/:id', function(req, res) {
 		return false;
 	}
 	users_db.getDoc(req.params.id, function(err, doc) {
-		console.log(doc);
 		res.render('user', { locals: {user: doc}});
 	});
 });
@@ -137,7 +131,6 @@ app.post('/create', function(req, res) {
 			'user_id': user_id
 		}, function(err, data) {
 			var story_id = data.id;
-			console.log(user);
 			user.stories.push({'id': story_id, 'title': req.body.title});
 			users_db.saveDoc(user_id, user, function(err, data) {
 				var story = {
@@ -192,7 +185,7 @@ app.get('/story/:id', function(req, res) {
 	});
 });
 
-app.listen(8080);
+app.listen(8888);
 
 var viaSocket = {};
 viaSocket.updateStory = function(client, data) {
@@ -227,7 +220,6 @@ var sys = require('sys');
 socket.on('connection', function(client) {
 	client.on('message', function(data) {
 		data = JSON.parse(data);
-		console.log(data);
 		if(!data.type) return false;
 		switch(data.type) {
 			case 'story-update':
