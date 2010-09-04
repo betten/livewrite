@@ -1,5 +1,5 @@
 io.setPath('client');
-socket = new io.Socket(null, {port: 8080});
+socket = new io.Socket(null, {port: 8888});
 socket.connect();
 socket.on('message', function(data) {
 	data = JSON.parse(data);

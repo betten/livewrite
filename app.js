@@ -1,18 +1,31 @@
 var express 	= require('./modules/express');
 var couchdb 	= require('./modules/node-couchdb/lib/couchdb');
 var io 		= require('./modules/Socket.IO-node/');
+var crypto	= require('crypto');
 
 var client = couchdb.createClient();
 var users_db = client.db('users');
 var stories_db = client.db('stories');
 
 var createUser = function(username, password, callback) {
+	var salt = createSalt(5);
+	password = salt + password;
+	password = crypto.createHash('sha1').update(password).digest('hex');
 	var user = {
 		'username': username,
 		'password': password,
+		'salt': salt,
 		'stories': []
 	};
 	users_db.saveDoc(user, callback);
+};
+var createSalt = function(length) {
+	var salt = '';
+	var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	for(var i = 0; i < length; i++) {
+		salt = salt + possible.charAt(Math.floor(Math.random()*possible.length));
+	}
+	return salt;
 };
 var newStory = function(title) {
 	var story = {
@@ -64,7 +77,9 @@ app.post('/signin', function(req, res) {
 	}
 	users_db.view('users', 'by_username', {key: req.body.username}, function(err, doc) {
 		var user = doc.rows[0];
-		if(user && user.value.password == req.body.password) {
+		var password = req.body.password;
+		password = crypto.createHash('sha1').update(user.value.salt + password).digest('hex');
+		if(user && user.value.password == password) {
 			req.session.user = user.value;
 			res.redirect('/user/'+user.value._id);
 			return false;
